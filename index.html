@@ -192,7 +192,7 @@ document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>set(b.dataset.l))
 try{document.getElementById('yr').textContent=new Date().getFullYear()}catch(e){}
 let s='ro';try{s=localStorage.getItem('l')||'ro'}catch(e){}set(s==='ru'?'ru':'ro');
 /* Куда уходят заявки: заполняется при подключении хранилища. Пока null, форма честно сообщает, что приём не работает. */
-const LEADS={url:null,key:null};
+const LEADS={url:'https://ervjsysouadjqdecmuyw.supabase.co/rest/v1/mersizo_leads',key:'sb_publishable_9807yDdA5N5frrkSotTXkA__gpgXiMb'};
 const f=document.getElementById('f'),m=document.getElementById('msg'),b=document.getElementById('send'),ph=document.getElementById('f-phone');
 const say=(k,c)=>{m.textContent=k?T[L][k]:'';m.className='msg '+(c||'')};
 const local=d=>{d=d.replace(/\D/g,'');if(d.length>8&&d.startsWith('373'))d=d.slice(3);if(d.startsWith('0'))d=d.slice(1);return d.slice(0,8)};
@@ -211,7 +211,7 @@ f.addEventListener('submit',async e=>{e.preventDefault();
  if(bad){say('bad','err');return}
  if(!LEADS.url){say('off','err');return}
  b.disabled=true;say('');
- try{const r=await fetch(LEADS.url,{method:'POST',headers:{'content-type':'application/json',apikey:LEADS.key,authorization:'Bearer '+LEADS.key,prefer:'return=minimal'},body:JSON.stringify({name:d.name,phone:'+373'+pd,venue:d.venue,type:d.type?T.ru[d.type]:null,tables:d.tables||null,pos:d.pos||null,note:d.note||null,lang:L,page:location.href})});
+ try{const r=await fetch(LEADS.url,{method:'POST',headers:{'content-type':'application/json',apikey:LEADS.key,prefer:'return=minimal'},body:JSON.stringify({name:d.name,phone:'+373'+pd,venue:d.venue,venue_type:d.type?T.ru[d.type]:null,tables:d.tables||null,pos:d.pos||null,comment:d.note||null,lang:L,page:location.href})});
   if(!r.ok)throw 0;document.getElementById('fv').hidden=true;document.getElementById('done').hidden=false}catch(x){say('er','err')}
  b.disabled=false});
 </script>
