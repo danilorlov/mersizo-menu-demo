@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mersizo Cabinet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: боковое меню на компьютере и верхняя лента на телефоне; сверху фильтры, ниже деньги, затем детали. */
+:root{--bg:#f7f5fb;--s:#fff;--s2:#f1ecf9;--line:#e6e0f0;--ink:#16091f;--muted:#655a72;--a:#6a1fb8;--a2:#ba66ff;--deep:#2c014f;--on:#fff;--good:#0f7a55;--bad:#c2410c;--warn:#a86a00;--h:'Geologica',system-ui,sans-serif;--t:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#130a1c;--s:#1e1329;--s2:#2a1c38;--line:#392a49;--ink:#f4eefb;--muted:#b5a8c4;--a:#c58bff;--a2:#ba66ff;--deep:#2c014f;--on:#1a0a29;--good:#6fd9b2;--bad:#ff9d6e;--warn:#f0bd5e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#130a1c;--s:#1e1329;--s2:#2a1c38;--line:#392a49;--ink:#f4eefb;--muted:#b5a8c4;--a:#c58bff;--a2:#ba66ff;--deep:#2c014f;--on:#1a0a29;--good:#6fd9b2;--bad:#ff9d6e;--warn:#f0bd5e;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--t);font-variant-numeric:tabular-nums;overflow-x:hidden}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100dvh}
+.side{background:linear-gradient(var(--deep),#5b1a99);color:#fff;padding:20px 12px;position:sticky;top:0;height:100dvh;display:flex;flex-direction:column;gap:4px}
+.logo{background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:6px;display:flex}
+.logo svg{height:24px;width:auto}
+.rest{font:700 15px var(--h);padding:10px 12px 12px}
+.rest small{display:block;font:400 12px var(--t);opacity:.8}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;font:500 15px var(--h);text-align:left;white-space:nowrap}
+.nav button[aria-current="page"]{background:#fff;color:var(--deep)}
+.nav button:not([aria-current="page"]):hover{background:rgba(255,255,255,.14)}
+.sfoot{margin-top:auto;font-size:12px;opacity:.82;padding:12px}
+.main{min-width:0;padding:20px max(24px,env(safe-area-inset-right,0px)) 48px 24px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:18px}
+.bar h1{font:700 26px/1.15 var(--h);margin-right:auto}
+.seg{display:flex;background:var(--s);border:1px solid var(--line);border-radius:90px;padding:3px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg button{min-height:36px;padding:0 13px;border-radius:90px;font:500 14px var(--h);white-space:nowrap;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--a);color:var(--on)}
+.dates{display:flex;flex-wrap:wrap;gap:8px}
+.dates label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.dates input{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:90px;background:var(--s);color:var(--ink)}
+.demo{background:var(--s2);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--muted);margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.k{background:var(--s);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-width:0}
+.k small{display:block;color:var(--muted);font-size:13px}
+.k b{display:block;font:700 25px/1.2 var(--h);margin-top:4px;overflow-wrap:anywhere}
+.k.hero{background:linear-gradient(135deg,var(--deep),#7a2fd0);color:#fff;border:0}
+.k.hero small{color:#e6d6fb}
+.d{font-size:13px;font-weight:600;margin-top:2px;display:block}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.k.hero .up,.k.hero .dn{color:#fff}
+.g2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:12px;margin-top:12px}
+.g2e{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.c{background:var(--s);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.c h2{font:700 16px/1.25 var(--h);margin-bottom:10px}
+.c h2 small{font:400 13px var(--t);color:var(--muted);margin-left:6px}
+.chart{width:100%;height:auto;display:block}
+.heat{display:grid;grid-template-columns:30px repeat(15,minmax(0,1fr));gap:2px;font-size:11px;color:var(--muted)}
+.heat i{aspect-ratio:1;border-radius:4px;background:var(--a2);display:block}
+.heat span{text-align:center;overflow:hidden}
+.rows{display:grid;gap:8px}
+.r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;font-size:14px;text-align:left;width:100%}
+.r span{min-width:0;overflow-wrap:anywhere}
+.r b{font-weight:600}
+.r .m{grid-column:1/-1;height:6px;border-radius:3px;background:var(--s2);overflow:hidden}
+.r .m i{display:block;height:100%;background:var(--a);border-radius:3px}
+.stack{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px}
+.stack i{display:block;height:100%}
+.leg{display:grid;gap:6px;margin-top:10px;font-size:14px}
+.leg div{display:flex;justify-content:space-between;gap:12px}
+.leg u{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;text-decoration:none}
+.ins{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.ins li{background:var(--s2);border-radius:12px;padding:10px 12px;font-size:14px}
+.ins b{font-weight:600}
+.live{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;background:var(--s);border:1px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px;font-size:14px}
+.live b{font:700 16px var(--h)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--good);display:inline-block;margin-right:6px}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.t{position:relative;border-radius:16px;padding:10px 12px;text-align:left;min-height:96px;border:1px solid var(--line);background:var(--s);display:flex;flex-direction:column;gap:2px}
+.t:hover{border-color:var(--a)}
+.t b{font:700 15px var(--h)}
+.t strong{font:700 16px var(--h);margin-top:auto}
+.t small{font-size:12px;color:var(--muted)}
+.st{position:absolute;right:10px;top:12px;width:10px;height:10px;border-radius:50%}
+.st.free{background:var(--line)}.st.busy{background:var(--a2)}.st.pay{background:#f6b10a}
+.leg2{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin:0 0 12px}
+.leg2 .st{position:static;display:inline-block;margin-right:6px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th{font:500 13px var(--t);color:var(--muted);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th button{font:inherit;color:inherit}
+th[aria-sort] button{color:var(--a);font-weight:600}
+td{padding:10px;text-align:right;border-bottom:1px solid var(--line)}
+tr.cl{cursor:pointer}
+tr.cl:hover td{background:var(--s2)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:90px;background:var(--s2);white-space:nowrap}
+.tag.good{color:var(--good)}.tag.bad{color:var(--bad)}.tag.warn{color:var(--warn)}.tag.a{color:var(--a)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.q{flex:1 1 200px;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:90px;background:var(--bg)}
+.rev{display:grid;gap:10px}
+.rv{border-bottom:1px solid var(--line);padding-bottom:10px}
+.rv:last-child{border-bottom:0}
+.rv div{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.stars{color:#d98e00;letter-spacing:1px}
+.scrim{position:fixed;inset:0;background:rgba(20,8,32,.5);z-index:20}
+.dr{position:fixed;z-index:21;right:0;top:0;bottom:0;width:min(440px,100%);background:var(--bg);overflow:auto;padding:20px max(20px,env(safe-area-inset-right,0px)) 32px 20px;display:grid;gap:12px;align-content:start}
+.dr h2{font:700 22px var(--h);padding-right:48px}
+.x{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;background:var(--s);border:1px solid var(--line);font-size:20px}
+.mini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mini .k b{font-size:20px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.g2,.g2e{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:780px){
+.shell{grid-template-columns:minmax(0,1fr)}
+.side{position:sticky;top:0;z-index:10;height:auto;flex-direction:column;padding:10px 0 8px;gap:8px}
+.logo{margin:0;padding:6px 10px;border-radius:10px}.logo svg{height:18px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.rest{padding:0;text-align:right;font-size:13px}.sfoot{display:none}
+.nav{flex-direction:row;overflow-x:auto;padding:0 12px;scrollbar-width:none}
+.nav button{min-height:40px;padding:0 12px;font-size:14px}.nav svg{display:none}
+.main{padding:14px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.bar h1{width:100%;font-size:22px}
+.k{padding:12px}.k b{font-size:20px}
+.heat{font-size:9px;grid-template-columns:22px repeat(15,minmax(0,1fr))}
+}
+@media(min-width:781px){.head{display:contents}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side"><div class="head"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 76" width="448" height="76" role="img" aria-label="Mersizo"><rect x="0" y="0" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="0" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="33" y="0" width="10" height="10" rx="1.4" fill="#F6B10A"/><rect x="55" y="0" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="0" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="22" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="44" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="11" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="22" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="33" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="44" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="22" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="33" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="33" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="33" y="33" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="33" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="33" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="44" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="44" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="44" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="44" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="55" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="55" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="55" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="55" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="0" y="66" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="11" y="66" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="55" y="66" width="10" height="10" rx="1.4" fill="#9E1239"/><rect x="66" y="66" width="10" height="10" rx="1.4" fill="#9E1239"/><g transform="translate(94 16)" fill="none" stroke="#9E1239" stroke-width="13" stroke-linejoin="miter"><path transform="translate(0 0)" d="M6.5 60V8M6.5 30a17 17 0 0 1 34 0V60M40.5 30a17 17 0 0 1 34 0V60"/><path transform="translate(88 0)" d="M6.5 34H45.5A19.5 19.5 0 1 0 40 48"/><path transform="translate(147 0)" d="M6.5 60V8M6.5 36C6.5 22 16 14 31 15"/><path transform="translate(181 0)" d="M34 21C30 12 9 11 9 22.5 9 34 36 30 36 45.5 36 58 11 58 6 48"/><path transform="translate(231 0)" d="M6.5 60V8"/><path transform="translate(254 0)" d="M5 14.5H36L5 53.5H37"/><path transform="translate(302 0)" d="M6.5 34A19.5 19.5 0 1 0 45.5 34A19.5 19.5 0 1 0 6.5 34Z"/><rect x="231" y="-11" width="13" height="13" rx="1.8" fill="#F6B10A" stroke="none"/></g></svg>
+</div><div class="rest">Restaurant demo<small id="sub"></small></div></div><nav class="nav" id="nav" aria-label="Cabinet"></nav><div class="sfoot" id="sfoot"></div></aside>
+<main class="main" id="main"></main>
+</div>
+<div id="over"></div>
+<script>
+const MENU=[["Brânzoaice cu cremă de lapte condensat și smântână vaniliată", "Сырники с кремом из сгущенки и ванильной сметаной", 115, 0], ["Papanași cu vișine și cremă tiramisu", "Сырники с вишней и кремом тирамису", 165, 0], ["Terci de ovăz cu sos de vișine și marmeladă de portocale", "Овсяная каша с вишневым соусом и апельсиновым мармеладом", 85, 0], ["Terci de ovăz cu fructe de pădure și fructe uscate", "Овсяная каша с ягодами и сухофруктами", 85, 0], ["Scramble cu orez prăjit și creveți", "Скрембл с рисом и креветками", 165, 0], ["Scramble cu creveți pe pâine brioche, cu ciuperci în sos cremos", "Скрембл с креветками на бриоши, с грибами в сливочном соусе", 155, 0], ["Scrample cu orez prăjit și șnițel de pui", "Скрембл с рисом и куриным шницелем", 155, 0], ["Ouă ochiuri pe pâine prăjită cu ciuperci în sos cremos", "Глазунья на тосте с грибами в сливочном соусе", 95, 0], ["Shakshuka", "Шакшука", 120, 0], ["Mic dejun englezesc", "Английский завтрак", 215, 0], ["Omletă clasică cu salată", "Омлет классический с салатом", 85, 0], ["Toast cu somon ușor sărat și ou poșat", "Тост со слабосоленой семгой и яйцом пашот", 185, 0], ["Tataki de ton cu salsa de roșii și sos yuzu ponzu", "Татаки из тунца с томатной сальсой и соусом юдзу- понзу", 165, 0], ["Tataki de somon cu pară kimchi", "Татаки из лосося с грушей ким-чи", 160, 0], ["Tar-tar de vită pe brioche cu icre roșii", "Тар-тар из говядины с на бриоши с красной икрой", 235, 0], ["Tar-tar de somon și ton cu cremă de avocado", "Тар-тар из лосося и тунца с кремом из авокадо", 170, 0], ["Pate de foie gras și ficat de pui pe brioche cu stafide", "Паштет из фуа-гра и куриной печени на бриоши с изюмом", 115, 0], ["Brioche cu piept de rață", "Бриошь с утиной грудкой", 115, 0], ["Brioche cu somon ușor sărat", "Бриошь со слабосоленой семгой", 125, 0], ["Brioche cu prosciutto și sos chimichurri", "Бриошь с прошутто и соусом чимичурри", 115, 0], ["Guacamole cu brioche", "Гуакамоле с бриошью", 140, 0], ["Fritto misto", "Фрито мисто", 710, 0], ["Crunch set", "Кранч сет", 315, 0], ["Set de aperitive asiatice", "Сет азиатских закусок", 550, 0], ["Set de aperitive", "Сет аперитивов", 390, 0], ["Platou de brânzeturi cu miere", "Сыры с медом", 245, 0], ["Platou de mezeluri", "Мясное ассорти", 245, 0], ["Vodka Companion Set", "Vodka Companion Set", 190, 0], ["Aripioare de pui BBQ cu cartofi pai", "Куриные крылья BBQ с картофелем фри", 165, 0], ["Popcorn de pui cu cartofi pai", "Куриный попкорн с хрустящим картофелем фри", 155, 0], ["Creveți pane cu cartofi pai", "Креветки в панировке с картофелем фри", 165, 0], ["Calamari baby prăjiți, cu cartofi pai și sos chili mayo", "Беби-кальмары фри с картофелем фри и соусом чили-майо", 225, 0], ["Spring rolluri cu pui și sos chili mayo", "Спринг роллы с курицей и соусом чили-майо", 95, 0], ["Spring rolluri cu somon", "Спринг роллы с семгой", 175, 0], ["Gyoza cu pui", "Гёдза с куриным мясом", 125, 0], ["Gyoza cu creveți", "Гёдзы с креветкой", 180, 0], ["Gyoza la abur cu carne de vită", "Гёдзы на пару с говядиной", 125, 0], ["Gyoza la abur cu pui", "Гёдзы на пару с курицей", 125, 0], ["Gyoza la abur cu creveți", "Гёдзы на пару с креветками", 180, 0], ["Smash burger de vită", "Смэш бургер с двойной говяжьей котлетой", 215, 0], ["Caesar Burger", "Бургер с куриным шницелем", 165, 0], ["Burger cu obrajiori de vită gătiți lent și cartofi pai", "Бургер с томлёными говяжьими щёчками и картофелем фри", 180, 0], ["Bao cu pui tonkatsu și batat prăjit", "Бао с курицей тонкацу и бататом фри", 165, 0], ["Bao cu creveți tempura", "Бао с креветкой темпура", 195, 0], ["Bao cu piept de rață și cartofi dulci pai", "Бао с утиной грудкой и бататом фри", 180, 0], ["Tăiței ramen cu somon și legume", "Лапша рамен с семгой и овощами", 165, 0], ["Tăiței ramen tom yum cu creveți și legume", "Лапша рамен том- ям с креветками и овощами", 155, 0], ["Tăiței soba cu șnițel de pui", "Лапша соба с куриным шницелем", 150, 0], ["Tăiței soba cu creveți", "Лапша соба с креветками", 155, 0], ["Risotto cu creveți și ciuperci", "Ризотто с креветками и грибами", 165, 0], ["Risotto cu fructe de mare", "Ризотто с морепродуктами", 215, 0], ["Fettuccine cu somon și icre roșii", "Феттучини с семгой и красной икрой", 235, 0], ["Fettuccine patru brânzeturi", "Феттучини четыре сыра", 140, 0], ["Spaghetti cu fructe de mare", "Спагетти с морепродуктами", 205, 0], ["Spaghetti carbonara", "Спагетти карбонара", 160, 0], ["Rigatoni puttanesca cu creveți", "Ригаттони путанеска с креветками", 195, 0], ["Paste rigatoni cu obrajiori de vită", "Паста ригатони с говяжьими щёчками", 185, 0], ["Tom yum cu somon și creveți", "Том-ям с семгой и креветками", 185, 0], ["Supă de pește cu sturion, somon și ciuperci albe", "Рыбный суп из осетрины и сёмги с белыми грибами", 255, 0], ["Zamă cu pui și tăiței de casă", "Зама с куриным мясом и лапшой", 85, 0], ["Borș roșu cu costițe de porc și slănină", "Красный борщ со свиным ребрышком и салом", 105, 0], ["Supă cremă de dovleac cu creveți și stracciatella", "Тыквенный крем-суп с креветкой и страчателлой", 135, 0], ["Ramen cu pui, tăiței și varză pak choi", "Рамен с куриным мясом, лапшой, капустой пак-чой", 195, 0], ["Cheesy ramen cu creveți și gyoza", "Сырный рамен с креветками и гёдза", 235, 0], ["Miso ramen", "Мисо- рамен", 135, 0], ["Salată de alge chuka cu spanac și sos de susan", "Салат чука со шпинатом и кунжутнымм соусом", 95, 0], ["Salată Mojito cu piept de rață", "Салат „Mojito\" с утиной грудкой", 195, 0], ["Salată Mojito cu fructe de mare", "Салат „Mojito\" с морепродуктами", 245, 0], ["Salată Caesar cu pui", "Цезарь с курицей", 155, 0], ["Salată Caesar cu creveți", "Салат Цезарь с креветками", 185, 0], ["Buddha bowl", "Будда боул", 155, 0], ["Salată cu fructe de mare, quinoa și vinete crocante", "Салат с морепродуктами, киноа и хрустящим баклажаном", 195, 0], ["Salată de legume cu brânză feta și capere", "Овощной салат с сыром фета и каперсами", 165, 0], ["Salată cu sfeclă și brânză de capră", "Салат со свеклой козьим сыром", 140, 0], ["Salată cu vânătă și avocado", "Салат с баклажаном и авокадо", 140, 0], ["File de doradă cu piure de cartofi și sos de roșii", "Филе дорадо с картофельным пюре и томатным соусом", 240, 0], ["Ruladă de sturion cu broccolini, pak choi și morcovi baby", "Рулет из осетрины с брокколини, капустой пак-чой и беби-морковью", 350, 0], ["Steak de somon cu piure de morcov, broccolini și icre roșii", "Стейк из семги с морковным пюре, брокколини и красной икрой", 310, 0], ["Piept de rață cu piure de morcov și sos de merișoare", "Утиная грудка с морковным пюре и клюквенным соусом", 275, 0], ["Steak Ribeye pe os cu sos demi-glace", "Стейк рибай на кости с соусом демигляс", 80, 0], ["Pepper steak cu piure de cartofi și spanac proaspăt", "Пеппер стейк с мятым картофелем и свежим шпинатом", 385, 0], ["Medalioane de vită cu piure de cartofi, sos demi-glace și ciuperci", "Медальоны из говядины с картофельным пюре, соусом демиглас и грибами", 310, 0], ["Filet mignon cu piure de conopidă și sos demi-glace", "Филе миньон с пюре из цветной капусты и соусом демигляс", 385, 0], ["Piept de pui cu legume și sos de parmezan", "Стейк из куриной грудки с овощным соте и сырнм соусом", 175, 0], ["Costițe de porc glazurate cu cartofi pai", "Томлённые свиные ребра с картофелем фри", 310, 0], ["Mușchiuleț de porc la cuptor cu cartofi ca acasă și ciuperci", "Запечённая свиная вырезка с картофелем по-домашнему и грибами", 195, 0], ["Ciolan de porc cu cartofi prăjiți și sos chimichurri", "Свиная рулька с жареным картофелем и соусом чимичурри", 310, 0], ["Obrăjori de vită pe brioche cu ciuperci și sos demi-glace", "Говяжьи щёчки на бриоши с грибами и соусом демигляс", 235, 0], ["Batat pai cu mousse de parmezan", "Батат фри с муссом из пармезана", 125, 0], ["Cartofi paii cu mousse de parmezan", "Картофель фри с муссом из пармезана", 75, 0], ["Conopidă la grătar cu sos de trufe și roșii kimchi", "Цветная капуста гриль, с трюфельным соусом и томатами ким-чи", 145, 0], ["Broccoli la grătar cu salsa de roșii", "Брокколи гриль с томатной сальсой", 145, 0], ["Legume la grătar", "Овощи гриль", 120, 0], ["Orez jasmin cu lapte de cocos", "Жасминовый рис на кокосовом молоке", 65, 0], ["Cherry Sakura", "Cherry Sakura", 120, 0], ["Blueberry", "Blueberry", 95, 0], ["Mango Mousse", "Mango Mousse", 90, 0], ["Tiramisu", "Tiramisu", 95, 0], ["Chocolate Lava Cake", "Chocolate Lava Cake", 105, 0], ["Cheesecake Salted Caramel", "Cheesecake Salted Caramel", 85, 0], ["Cheesecake Snickers", "Cheesecake Snickers", 85, 0], ["Red Dragon", "Red Dragon", 270, 1], ["Philadelphia Roll", "Philadelphia Roll", 180, 1], ["Philly Roll", "Philly Roll", 195, 1], ["Roll Kyoto", "Roll Kyoto", 195, 1], ["Philadelphia crevete", "Philadelphia crevete", 175, 1], ["Shiro Tempura", "Shiro Tempura", 175, 1], ["Philadelphia Ton", "Philadelphia Ton", 190, 1], ["Philadelphia Tipar", "Philadelphia Tipar", 195, 1], ["Mojito Roll", "Mojito Roll", 255, 1], ["Tempura Somon", "Tempura Somon", 180, 1], ["Roll Totoro", "Roll Totoro", 200, 1], ["Basil Salmon Tempura", "Basil Salmon Tempura", 180, 1], ["Tempura Shrimp", "Tempura Shrimp", 180, 1], ["Roll Alaska", "Roll Alaska", 175, 1], ["Tempura Tuna", "Tempura Tuna", 180, 1], ["Roll Canada", "Roll Canada", 190, 1], ["Yonkai Set", "Yonkai Set", 800, 1], ["Shrimp Set", "Shrimp Set", 420, 1], ["Ikigai Set", "Ikigai Set", 420, 1], ["Fuji Set", "Fuji Set", 450, 1], ["Malibu Poke", "Malibu Poke", 180, 1], ["Philly Poke", "Philly Poke", 190, 1], ["Tempura Shrimp Poke", "Tempura Shrimp Poke", 180, 1], ["Mojito Classic", "Mojito Classic", 150, 2], ["Mojito Mango", "Mojito Mango", 150, 2], ["Mojito Passion & Coconut", "Mojito Passion & Coconut", 150, 2], ["Limonadă Dragon Fruit și Lychee", "Лимонад с питахайей и личи", 100, 2], ["Limonadă Căpșună Albă", "Лимонад с клубникой", 100, 2], ["Pere și calamansi", "Pere și calamansi", 105, 2], ["Răchitele și Lemongrass", "Răchitele și Lemongrass", 105, 2], ["Aperol Spritz", "Aperol Spritz", 135, 2], ["Tonic Pere și Tei", "Tonic Pere și Tei", 135, 2], ["Tonic Zmeură și mirodenii", "Tonic Zmeură și mirodenii", 135, 2], ["Tonic Lemongrass și Yuzu", "Tonic Lemongrass și Yuzu", 135, 2], ["Tequila cu Mango afumat", "Tequila cu Mango afumat", 135, 2], ["Porn Star Martini", "Porn Star Martini", 155, 2], ["Gin Basil Smash", "Gin Basil Smash", 145, 2], ["Lychee Star Martini", "Lychee Star Martini", 145, 2], ["Serenity smash", "Serenity smash", 145, 2], ["Golden Quince", "Golden Quince", 145, 2], ["Autumn Nostalgie", "Autumn Nostalgie", 145, 2], ["Noir de Noir", "Noir de Noir", 145, 2], ["Wild Mango", "Wild Mango", 145, 2], ["Velvet Timber", "Velvet Timber", 160, 2], ["Negroni Plum", "Negroni Plum", 160, 2], ["Harvest Embers", "Harvest Embers", 160, 2], ["White Negroni", "White Negroni", 160, 2], ["Negroni", "Negroni", 160, 2], ["Paloma Autumn", "Paloma Autumn", 155, 2], ["White Marry", "White Marry", 155, 2], ["Ruby Breeze", "Ruby Breeze", 155, 2], ["Golden Tropic", "Golden Tropic", 155, 2], ["Autumn Tonic", "Autumn Tonic", 155, 2], ["Apple Colada", "Apple Colada", 155, 2], ["Praline", "Praline", 110, 0], ["Fig", "Fig", 110, 0], ["Ceai Cătină și Pere", "Чай облепиха-груша", 110, 3], ["Ceai de Pere și Lemongrass", "Чай груша-лемонграсс", 110, 3], ["Ceai de Zmeură și Rodie", "Чай малина-гранат", 110, 3], ["Ceai de Ghimbir", "Чай имбирный", 110, 3], ["Matcha cu avocado și aloe", "Матча с авокадо и алоэ", 95, 3], ["Matcha cu pere și mango", "Матча с грушей и манго", 95, 3], ["Bumblbee de toamnă Matcha", "Бамблби осенний Матча", 90, 3], ["Bumblbee de toamnă", "Бамблби осенний", 90, 3], ["Espresso", "Espresso", 40, 3], ["Americano", "Americano", 40, 3], ["Cappuccino", "Cappuccino", 60, 3], ["Vegan Cappuccino", "Vegan Cappuccino", 75, 3], ["Coffee Latte", "Coffee Latte", 60, 3], ["Caffe Latte Vegan", "Caffe Latte Vegan", 75, 3], ["Matcha Latte", "Matcha Latte", 70, 3], ["Ronfeld Black Tea", "Ronfeld Black Tea", 65, 3], ["Ronfeld Green Tea", "Ronfeld Green Tea", 65, 3], ["Ronfeld Herbal Tea", "Ronfeld Herbal Tea", 65, 3], ["Ronfeld Fruit Tea", "Ronfeld Fruit Tea", 65, 3], ["Orange Fresh", "Orange Fresh", 85, 3], ["Grapefruit Fresh", "Grapefruit Fresh", 85, 3], ["Lemon Fresh", "Lemon Fresh", 85, 3], ["Mix Fresh", "Mix Fresh", 85, 3], ["Coca-Cola", "Coca-Cola", 45, 3], ["Coca-Cola Zero", "Coca-Cola Zero", 45, 3], ["Fanta", "Fanta", 40, 3], ["Sprite", "Sprite", 40, 3], ["Schweppes", "Schweppes", 40, 3], ["Dorna", "Dorna", 45, 3], ["Dorna", "Dorna", 85, 3], ["Borjomi", "Borjomi", 85, 3], ["Juice", "Juice", 45, 3], ["Burn ENERGY", "Burn ENERGY", 75, 3], ["Macallan Double Cask 15 Y.O", "Macallan Double Cask 15 Y.O", 280, 4], ["Macallan Triple Cask 12 Y.O", "Macallan Triple Cask 12 Y.O", 180, 4], ["Chivas Regal 18 Y.O", "Chivas Regal 18 Y.O", 250, 4], ["Glenfiddich 12 Y.O", "Glenfiddich 12 Y.O", 145, 4], ["Glenfiddich 15 Y.O", "Glenfiddich 15 Y.O", 195, 4], ["Glenmorangie Quinta Ruban 14 Y.O", "Glenmorangie Quinta Ruban 14 Y.O", 155, 4], ["Glenmorangie Lasanta 12 Y.O", "Glenmorangie Lasanta 12 Y.O", 135, 4], ["Glenmorangie Original 10 Y.O", "Glenmorangie Original 10 Y.O", 115, 4], ["Chivas Regal 12 Y.O", "Chivas Regal 12 Y.O", 115, 4], ["Johnnie Walker Red Label", "Johnnie Walker Red Label", 65, 4], ["Johnnie Walker Black Label", "Johnnie Walker Black Label", 100, 4], ["Monkey Shoulder", "Monkey Shoulder", 100, 4], ["Tullamore Dew 12 Y.O", "Tullamore Dew 12 Y.O", 105, 4], ["Tullamore Dew", "Tullamore Dew", 65, 4], ["Jameson", "Jameson", 75, 4], ["Jack Daniel's Single Barrel", "Jack Daniel's Single Barrel", 120, 4], ["Jack Daniel's Old No", "Jack Daniel's Old No", 770, 4], ["Jack Daniel's Tennessee Honey", "Jack Daniel's Tennessee Honey", 70, 4], ["Jim Beam", "Jim Beam", 70, 4], ["Evan Williams", "Evan Williams", 70, 4], ["Evan Williams Single Barrel", "Evan Williams Single Barrel", 100, 4], ["The Kurayoshi", "The Kurayoshi", 150, 4], ["Fuyu", "Fuyu", 105, 4], ["Fujimi", "Fujimi", 120, 4], ["Akashi-Tai", "Akashi-Tai", 90, 4], ["Plantation Pineapple", "Plantation Pineapple", 100, 4], ["Plantation", "Plantation", 65, 4], ["Bacardi", "Bacardi", 90, 4], ["Bacardi", "Bacardi", 65, 4], ["Grey Goose", "Grey Goose", 110, 4], ["Belvedere", "Belvedere", 95, 4], ["Finlandia Vodka", "Finlandia Vodka", 65, 4], ["Khortytsa Premium", "Khortytsa Premium", 55, 4], ["Gin Mare Capri", "Gin Mare Capri", 120, 4], ["Irish Gin Drumshanbo Gunpowder", "Irish Gin Drumshanbo Gunpowder", 105, 4], ["135 East Hyogo Dry Gin", "135 East Hyogo Dry Gin", 95, 4], ["Hendrick's", "Hendrick's", 110, 4], ["Citadelle", "Citadelle", 85, 4], ["Citadelle", "Citadelle", 105, 4], ["Bombay Sapphire", "Bombay Sapphire", 75, 4], ["Tanqueray", "Tanqueray", 75, 4], ["Azul", "Azul", 440, 4], ["Azul", "Azul", 275, 4], ["Kah", "Kah", 140, 4], ["Roster Rojo", "Roster Rojo", 95, 4], ["Jose Cuervo", "Jose Cuervo", 75, 4], ["Hennessy X.O", "Hennessy X.O", 490, 4], ["Hennessy V.S.O.P", "Hennessy V.S.O.P", 150, 4], ["Hennessy Very Special", "Hennessy Very Special", 120, 4], ["Pierre Ferrand 10 Generations", "Pierre Ferrand 10 Generations", 130, 4], ["Pierre Ferrand", "Pierre Ferrand", 90, 4], ["Bardar 20 Y.O", "Bardar 20 Y.O", 280, 4], ["Bardar 15 Y.O", "Bardar 15 Y.O", 180, 4], ["Bardar 12 Y.O", "Bardar 12 Y.O", 95, 4], ["Bardar 10 Y.O", "Bardar 10 Y.O", 85, 4], ["Bardar 7 Y.O", "Bardar 7 Y.O", 70, 4], ["Bardar 5 Y.O", "Bardar 5 Y.O", 60, 4], ["Hopfenbrau AGA", "Hopfenbrau AGA", 65, 4], ["Hoegaarden", "Hoegaarden", 90, 4], ["Velkopopovicky Kozel", "Velkopopovicky Kozel", 65, 4], ["Corona Extra", "Corona Extra", 90, 4], ["Corona Zero", "Corona Zero", 90, 4], ["Franziskaner Weissbier", "Franziskaner Weissbier", 95, 4], ["Moet & Chandon", "Moet & Chandon", 490, 5], ["Martini Asti", "Martini Asti", 600, 5], ["Cricova Grand Vintage", "Cricova Grand Vintage", 990, 5], ["Brut Natur Elogiu", "Brut Natur Elogiu", 650, 5], ["Cricova Cuvee Prestige", "Cricova Cuvee Prestige", 550, 5], ["Cricova Crisecco", "Cricova Crisecco", 315, 5], ["Cricova Crisecco", "Cricova Crisecco", 150, 5], ["Cricova Lacrima Dulce", "Cricova Lacrima Dulce", 315, 5], ["Cricova Lacrima Dulce", "Cricova Lacrima Dulce", 150, 5], ["Grande Cuvee de Purcari", "Grande Cuvee de Purcari", 800, 5], ["Cuvee de Purcari", "Cuvee de Purcari", 600, 5], ["Cuvee de Purcari", "Cuvee de Purcari", 650, 5], ["Maestro Prosecco Millesimato", "Maestro Prosecco Millesimato", 390, 5], ["Prosecco Bottega Gold", "Prosecco Bottega Gold", 990, 5], ["Prosecco Bottega Poeti", "Prosecco Bottega Poeti", 610, 5], ["Chardonay", "Chardonay", 690, 5], ["Sapte Soiuri", "Sapte Soiuri", 650, 5], ["Virgin", "Virgin", 540, 5], ["Cabernet", "Cabernet", 350, 5], ["Codru", "Codru", 350, 5], ["Pinot Grigio", "Pinot Grigio", 350, 5], ["Chardonnay", "Chardonnay", 350, 5], ["Rose de Cricova", "Rose de Cricova", 350, 5], ["Shiraz Prestige", "Shiraz Prestige", 370, 5], ["Magnific", "Magnific", 480, 5], ["Tatius", "Tatius", 690, 5], ["Rosu de Purcari", "Rosu de Purcari", 850, 5], ["Negru de Purcari", "Negru de Purcari", 850, 5], ["Alb de Purcari", "Alb de Purcari", 850, 5], ["Purcari Traminer", "Purcari Traminer", 490, 5], ["Purcari Pinot Gri", "Purcari Pinot Gri", 490, 5], ["Purcari Saperavi", "Purcari Saperavi", 490, 5], ["Purcari Malbec", "Purcari Malbec", 490, 5], ["Viorica de Purcari", "Viorica de Purcari", 425, 5], ["Rose de Purcari", "Rose de Purcari", 425, 5], ["Pinot Grigio de Purcari", "Pinot Grigio de Purcari", 425, 5], ["Chardonnay de Purcari", "Chardonnay de Purcari", 425, 5], ["Cabernet Sauvignon de Purcari", "Cabernet Sauvignon de Purcari", 425, 5], ["Cricova Codru", "Cricova Codru", 70, 5], ["Cricova Rose", "Cricova Rose", 70, 5], ["Cricova Chardonnay", "Cricova Chardonnay", 70, 5], ["Rose de Purcari", "Rose de Purcari", 85, 5], ["Cabernet de Purcari", "Cabernet de Purcari", 85, 5], ["Pinot Grigio de Purcari", "Pinot Grigio de Purcari", 85, 5]];
+/* ---------- тексты ---------- */
+const TX={
+ru:{chk:'Чеков',dates:'Даты',from:'С',to:'По',over:'Обзор',tables:'Столы',dishes:'Блюда',staff:'Официанты',guests:'Гости',reviews:'Отзывы',money:'Деньги',today:'Сегодня',d7:'7 дней',d30:'30 дней',all:'Все филиалы',demo:'Демонстрационные данные: чеки сгенерированы на реальных ценах меню. В работе цифры придут из кассы.',rev:'Выручка',checks:'Чеки',avg:'Средний чек',tips:'Чаевые',qr:'Доля оплат по QR',rate:'Оценка',vs:'к прошлому периоду',byday:'Выручка по дням',byhour:'Выручка по часам',heat:'Когда приходят деньги',heatS:'день и час',branch:'Филиалы',pay:'Как платят',card:'QR, карта',bank:'QR, приложение банка',pos:'Терминал и наличные',top:'Топ блюд',ins:'Что важно сейчас',now:'Сейчас в зале',busy:'столов занято',wait:'ждут оплату',open:'открытых счетов',free:'Свободен',bz:'Занят',pw:'Ждёт оплату',tb:'Стол',zoneH:'Зал',turn:'посадок',per:'за период',sold:'Продано',share:'Доля',likes:'Лайки',name:'Название',cat:'Раздел',search:'Поиск',allc:'Все разделы',wn:'Официант',tipp:'% чаевых',time:'Ср. время',gu:'Гость',visits:'Визиты',spent:'Потратил',last:'Последний визит',fav:'Любимое',seg:'Сегмент',vip:'VIP',reg:'Постоянный',nw:'Новый',act:'Активный',lost:'Уходит',dago:'дн. назад',todayS:'сегодня',segs:'Сегменты гостей',avgR:'Средняя оценка',cnt:'Отзывов',low:'Низкие оценки',allR:'Все',bad:'Проблемные',turnover:'Оборот через Mersizo',feeC:'Комиссия карт, 2%',feeB:'Комиссия приложения банка, 0,7%',feeM:'Комиссия Mersizo, пример 1%',payout:'К выплате ресторану',tipsO:'Чаевые официантам, отдельно',po:'Выплаты по дням',date:'Дата',gross:'Оборот',fees:'Комиссии',net:'К выплате',tipsT:'Чаевые',recent:'Последние чеки',closeL:'Закрыть',min:'мин',lei:'lei',i1:b=>`Лучший стол: <b>${b}</b>`,i2:(a,b)=>`Пик выручки в <b>${a}:00</b>, самый тихий час <b>${b}:00</b>`,i3:a=>`Чаще всего заказывают <b>${a}</b>`,i4:a=>`<b>${a}</b> приносит больше всего чаевых`,i5:(n)=>`<b>${n}</b> постоянных гостей не были больше 3 недель`,sub:'Кабинет владельца',ex:'Пример для демо'},
+ro:{chk:'Note',dates:'Date',from:'De la',to:'Până la',over:'Prezentare',tables:'Mese',dishes:'Preparate',staff:'Ospătari',guests:'Oaspeți',reviews:'Recenzii',money:'Bani',today:'Azi',d7:'7 zile',d30:'30 zile',all:'Toate filialele',demo:'Date demonstrative: notele sunt generate pe prețurile reale ale meniului. În producție cifrele vin din casă.',rev:'Încasări',checks:'Note',avg:'Nota medie',tips:'Bacșiș',qr:'Plăți prin QR',rate:'Rating',vs:'față de perioada trecută',byday:'Încasări pe zile',byhour:'Încasări pe ore',heat:'Când vin banii',heatS:'zi și oră',branch:'Filiale',pay:'Cum se plătește',card:'QR, card',bank:'QR, aplicația băncii',pos:'Terminal și numerar',top:'Top preparate',ins:'Ce contează acum',now:'Acum în sală',busy:'mese ocupate',wait:'așteaptă plata',open:'note deschise',free:'Liberă',bz:'Ocupată',pw:'Așteaptă plata',tb:'Masa',zoneH:'Sală',turn:'ocupări',per:'în perioadă',sold:'Vândute',share:'Pondere',likes:'Like-uri',name:'Denumire',cat:'Secțiune',search:'Caută',allc:'Toate secțiunile',wn:'Ospătar',tipp:'% bacșiș',time:'Timp mediu',gu:'Oaspete',visits:'Vizite',spent:'A cheltuit',last:'Ultima vizită',fav:'Preferat',seg:'Segment',vip:'VIP',reg:'Fidel',nw:'Nou',act:'Activ',lost:'Pleacă',dago:'zile în urmă',todayS:'azi',segs:'Segmente de oaspeți',avgR:'Rating mediu',cnt:'Recenzii',low:'Note mici',allR:'Toate',bad:'Probleme',turnover:'Încasări prin Mersizo',feeC:'Comision carduri, 2%',feeB:'Comision aplicația băncii, 0,7%',feeM:'Comision Mersizo, exemplu 1%',payout:'De virat restaurantului',tipsO:'Bacșiș ospătarilor, separat',po:'Viramente pe zile',date:'Data',gross:'Încasări',fees:'Comisioane',net:'De virat',tipsT:'Bacșiș',recent:'Ultimele note',closeL:'Închide',min:'min',lei:'lei',i1:b=>`Cea mai bună masă: <b>${b}</b>`,i2:(a,b)=>`Vârf de încasări la <b>${a}:00</b>, cea mai liniștită oră <b>${b}:00</b>`,i3:a=>`Cel mai des se comandă <b>${a}</b>`,i4:a=>`<b>${a}</b> aduce cel mai mult bacșiș`,i5:n=>`<b>${n}</b> oaspeți fideli n-au mai venit de peste 3 săptămâni`,sub:'Cabinetul proprietarului',ex:'Exemplu pentru demo'}};
+const CAT={ru:['Кухня','Суши','Бар','Напитки','Крепкое','Вино'],ro:['Bucătărie','Sushi','Bar','Băuturi','Tării','Vin']};
+const REV={ru:{5:['Быстро оплатили, разделили счёт за минуту.','Очень вкусно, официант внимательный.','Удобно, что счёт сразу на телефоне.','Всё отлично, вернёмся.'],4:['Вкусно, но немного ждали заказ.','Хорошо, только музыка громкая.'],3:['Средне, горячее принесли поздно.'],2:['Долго ждали счёт, никто не подходил.','Блюдо было холодным.'],1:['Перепутали заказ и долго ждали.']},ro:{5:['Am plătit repede, am împărțit nota într-un minut.','Foarte gustos, ospătar atent.','E comod că nota e pe telefon.','Totul excelent, revenim.'],4:['Gustos, dar am așteptat puțin.','Bine, doar muzica e tare.'],3:['Mediu, felul principal a venit târziu.'],2:['Am așteptat mult nota.','Preparatul a fost rece.'],1:['Au încurcat comanda și am așteptat mult.']}};
+const BR=[{id:'f1',ru:'Филиал 1',ro:'Filiala 1',tables:24,w:1},{id:'f2',ru:'Филиал 2',ro:'Filiala 2',tables:16,w:.6},{id:'f3',ru:'Филиал 3',ro:'Filiala 3',tables:12,w:.45}];
+const MANY=BR.length>1; /* одно заведение: выбор филиала и блок филиалов скрываются */
+const WAIT=[['Ion C.','Ana M.','Victor R.','Elena S.','Dan P.'],['Maria T.','Andrei B.','Olga G.'],['Igor L.','Nina V.','Radu D.']];
+/* ---------- генерация чеков ---------- */
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(20261105);
+const pick=w=>{let s=w.reduce((a,b)=>a+b,0),r=R()*s;for(let i=0;i<w.length;i++){r-=w[i];if(r<=0)return i}return w.length-1};
+const DW=MENU.map((m,i)=>Math.pow(i+3,-.75)*(m[3]<3?1.5:.8));
+const HW=[1,2,3,5,7,5,3,2,3,6,9,10,8,5,2]; /* 9..23 */
+const TB=BR.map(b=>Array.from({length:b.tables},()=>.5+R()*1.5));
+const TW=BR.map((b,i)=>Array.from({length:b.tables},(_,k)=>.6+R()*.8));
+const GW=Array.from({length:1500},(_,i)=>Math.pow(i+2,-.7));
+const GID=GW.map(()=>String(1000+Math.floor(R()*9000)));
+const NOW=new Date();NOW.setHours(0,0,0,0);
+const C=[];
+for(let d=119;d>=0;d--){
+ const dt=new Date(NOW);dt.setDate(dt.getDate()-d);
+ const wd=(dt.getDay()+6)%7, f=[.8,.75,.8,.9,1.25,1.4,1.1][wd];
+ BR.forEach((b,bi)=>{const n=Math.round(64*b.w*f*(.88+R()*.24));
+  for(let i=0;i<n;i++){
+   const h=9+pick(HW),tbl=pick(TB[bi])+1,people=1+pick([2,5,3,2,1]),cnt=Math.max(1,Math.round(people*(1.1+R()*.9))),items=[];let sum=0;
+   for(let k=0;k<cnt;k++){const j=pick(DW);items.push(j);sum+=MENU[j][2]}
+   const m=pick([40,20,40]),via=['card','bank','pos'][m],qr=via!=='pos';
+   let tip=0;if(qr&&R()<.62)tip=Math.round(sum*[5,10,15][pick([3,5,2])])/100;
+   const w=pick(WAIT[bi].map((_,x)=>1+x*.15*(bi===0?1:.5)));
+   let rate=0;if(qr&&R()<.38)rate=5-pick([62,24,8,4,2]);
+   let txt='';if(rate&&R()<.45)txt=Math.floor(R()*1000);
+   C.push({d,h,wd,b:bi,tbl,people,items,sum,via,qr,tip,w:WAIT[bi][w],rate,txt,g:pick(GW),dur:35+Math.floor(R()*75),dt})
+  }})}
+/* ---------- состояние ---------- */
+const ST={v:'over',p:'7',b:'all',l:'ru',cat:'all',q:'',sort:{},rf:'all'};
+try{ST.l=localStorage.getItem('cab.l')||'ru'}catch(e){}
+const t=k=>TX[ST.l][k];
+const fmt=n=>Math.round(n).toLocaleString('ru-RU').replace(/,/g,' ');
+const lei=n=>fmt(n)+' lei';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nm=i=>ST.l==='ru'?MENU[i][1]:MENU[i][0];
+const iso=dt=>dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+const ago=n=>{const x=new Date(NOW);x.setDate(x.getDate()-n);return x};
+const dOf=v=>{const[y,m,d]=v.split('-').map(Number);return Math.round((NOW-new Date(y,m-1,d))/864e5)};
+const MIN=iso(ago(59)),MAX=iso(NOW);
+const span=()=>{if(ST.p==='custom'){const a=dOf(ST.from),b=dOf(ST.to);return[Math.min(a,b),Math.max(a,b)]}return[0,ST.p==='today'?0:+ST.p-1]};
+const days=()=>{const[l,h]=span();return h-l+1};
+const sel=(prev=0)=>{const[l,h]=span(),s=prev?days():0;return C.filter(c=>c.d>=l+s&&c.d<=h+s&&(ST.b==='all'||BR[+ST.b].id===BR[c.b].id))};
+const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+const brName=i=>BR[i][ST.l];
+const delta=(a,b)=>{if(!b)return'';const p=(a-b)/b*100,up=p>=0;return `<span class="d ${up?'up':'dn'}">${up?'+':''}${p.toFixed(1).replace('.',',')}% ${t('vs')}</span>`};
+const k=(l,v,dl='',c='')=>`<div class="k ${c}"><small>${l}</small><b>${v}</b>${dl}</div>`;
+const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+const dateS=dt=>String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0');
+const avgRate=a=>{const r=a.filter(c=>c.rate);return r.length?sum(r,c=>c.rate)/r.length:0};
+const dishStat=a=>{const m=new Map();a.forEach(c=>c.items.forEach(i=>{const o=m.get(i)||{i,n:0,s:0};o.n++;o.s+=MENU[i][2];m.set(i,o)}));return[...m.values()]};
+/* ---------- графики ---------- */
+function barChart(pts){
+ const W=720,H=220,L=70,B=24,T=12,max=Math.max(...pts.map(p=>p.v),1),e10=Math.pow(10,Math.floor(Math.log10(max))),nice=[1,2,3,4,5,6,8,10].find(x=>x*e10>=max)*e10,bw=(W-L)/pts.length;
+ const y=v=>T+(H-T-B)*(1-v/nice);let g='';
+ for(let i=0;i<=4;i++){const v=nice*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="12" fill="var(--muted)">${fmt(v)}</text>`}
+ const mi=pts.reduce((a,p,i)=>p.v>pts[a].v?i:a,0),step=Math.ceil(pts.length/10);
+ const bars=pts.map((p,i)=>`<rect x="${L+i*bw+bw*.14}" y="${y(p.v)}" width="${bw*.72}" height="${H-B-y(p.v)}" rx="${Math.min(4,bw*.2)}" fill="${i===mi?'var(--a)':'var(--a2)'}" opacity="${i===mi?1:.6}"><title>${p.l}: ${lei(p.v)}</title></rect>${i%step===0?`<text x="${L+i*bw+bw/2}" y="${H-7}" text-anchor="middle" font-size="12" fill="var(--muted)">${p.l}</text>`:''}`).join('');
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('rev')}">${g}${bars}</svg>`}
+function heat(a){
+ const m=Array.from({length:7},()=>Array(15).fill(0));a.forEach(c=>m[c.wd][c.h-9]+=c.sum);const max=Math.max(...m.flat(),1);
+ const dn=ST.l==='ru'?['Пн','Вт','Ср','Чт','Пт','Сб','Вс']:['Lu','Ma','Mi','Jo','Vi','Sâ','Du'];
+ let h='<span></span>'+Array.from({length:15},(_,i)=>`<span>${(i%2===0)?i+9:''}</span>`).join('');
+ m.forEach((r,i)=>{h+=`<span>${dn[i]}</span>`+r.map((v,j)=>`<i style="opacity:${(.08+.92*Math.pow(v/max,.8)).toFixed(2)}" title="${dn[i]} ${j+9}:00, ${lei(v)}"></i>`).join('')});
+ return `<div class="heat">${h}</div>`}
+const rowsBar=(arr,click)=>{const max=Math.max(...arr.map(x=>x.v),1);return `<div class="rows">${arr.map(x=>`<button class="r" ${x.a||''}><span>${esc(x.l)}</span><b>${x.f}</b><div class="m"><i style="width:${(x.v/max*100).toFixed(1)}%"></i></div></button>`).join('')}</div>`};
+/* ---------- разделы ---------- */
+function vOver(){
+ const a=sel(),p=sel(1),rev=sum(a,c=>c.sum),rp=sum(p,c=>c.sum),tips=sum(a,c=>c.tip),qr=a.filter(c=>c.qr);
+ const bydays=[];const[dLo,dHi]=span();if(days()===1){for(let h=9;h<24;h++)bydays.push({l:h+':00',v:sum(a.filter(c=>c.h===h),c=>c.sum)})}else for(let d=dHi;d>=dLo;d--){const x=a.filter(c=>c.d===d);bydays.push({l:dateS(ago(d)),v:sum(x,c=>c.sum)})}
+ const tops=dishStat(a).sort((x,y)=>y.s-x.s).slice(0,6);
+ const ts=new Map();a.forEach(c=>{const key=c.b+'-'+c.tbl;ts.set(key,(ts.get(key)||0)+c.sum)});const best=[...ts.entries()].sort((x,y)=>y[1]-x[1])[0];
+ const hs=Array(15).fill(0);a.forEach(c=>hs[c.h-9]+=c.sum);const hi=hs.indexOf(Math.max(...hs)),lo=hs.indexOf(Math.min(...hs.slice(0,13)));
+ const ws=new Map();a.forEach(c=>ws.set(c.w,(ws.get(c.w)||0)+c.tip));const bw=[...ws.entries()].sort((x,y)=>y[1]-x[1])[0];
+ const mix=[['card',t('card'),'var(--a)'],['bank',t('bank'),'var(--a2)'],['pos',t('pos'),'var(--line)']].map(([id,l,col])=>({l,col,v:sum(a.filter(c=>c.via===id),c=>c.sum)}));
+ const brs=BR.map((b,i)=>({l:b[ST.l],v:sum(sel().filter(c=>c.b===i),c=>c.sum),a:''}));
+ const lostN=guests().filter(g=>g.seg==='lost').length;
+ return `${liveBar()}<div class="kpis">${k(t('rev'),lei(rev),delta(rev,rp),'hero')}${k(t('checks'),fmt(a.length),delta(a.length,p.length))}${k(t('avg'),lei(rev/(a.length||1)),delta(rev/(a.length||1),rp/(p.length||1)))}${k(t('tips'),lei(tips),delta(tips,sum(p,c=>c.tip)))}</div>
+ <div class="g2"><section class="c"><h2>${days()===1?t('byhour'):t('byday')}</h2>${barChart(bydays)}</section>
+ <section class="c"><h2>${t('ins')}</h2><ul class="ins">${best?`<li>${t('i1')(`${t('tb')} ${best[0].split('-')[1]}, ${brName(+best[0].split('-')[0])} · ${lei(best[1])}`)}</li>`:''}<li>${t('i2')(hi+9,lo+9)}</li>${tops[0]?`<li>${t('i3')(esc(nm(tops[0].i)))}</li>`:''}${bw?`<li>${t('i4')(esc(bw[0]))}</li>`:''}<li>${t('i5')(lostN)}</li></ul></section></div>
+ <div class="g2e"><section class="c"><h2>${t('heat')}<small>${t('heatS')}</small></h2>${heat(a)}</section>
+ <section class="c"><h2>${t('pay')}<small>${t('qr')}: ${Math.round(sum(qr,c=>c.sum)/(rev||1)*100)}%</small></h2><div class="stack">${mix.map(m=>`<i style="width:${m.v/(rev||1)*100}%;background:${m.col}"></i>`).join('')}</div><div class="leg">${mix.map(m=>`<div><span><u style="background:${m.col}"></u>${m.l}</span><b>${lei(m.v)}</b></div>`).join('')}</div>
+ ${MANY?`<h2 style="margin-top:18px">${t('branch')}</h2>${rowsBar(brs.map(b=>({...b,f:lei(b.v)})))}`:''}</section></div>
+ <section class="c" style="margin-top:12px"><h2>${t('top')}</h2>${rowsBar(tops.map(x=>({l:nm(x.i),v:x.s,f:lei(x.s)})))}</section>`}
+const LIVE=BR.map((b,bi)=>Array.from({length:b.tables},(_,i)=>{const r=(Math.sin((bi+2)*(i+3)*12.9898)*43758.5453)%1,v=Math.abs(r);return{s:v<.42?'free':v<.86?'busy':'pay',sum:Math.round(250+v*1400)}}));
+function liveBar(){const l=ST.b==='all'?LIVE.flat():LIVE[+ST.b],b=l.filter(x=>x.s!=='free'),w=l.filter(x=>x.s==='pay');
+ return `<div class="live"><span><i class="dot"></i>${t('now')}</span><span><b>${b.length}/${l.length}</b> ${t('busy')}</span><span><b>${w.length}</b> ${t('wait')}</span><span><b>${lei(sum(b,x=>x.sum))}</b> ${t('open')}</span></div>`}
+function vTables(){
+ const a=sel(),list=ST.b==='all'?BR.map((_,i)=>i):[+ST.b];
+ const lg=`<p class="leg2"><span><i class="st free"></i>${t('free')}</span><span><i class="st busy"></i>${t('bz')}</span><span><i class="st pay"></i>${t('pw')}</span></p>`;
+ return liveBar()+lg+list.map(bi=>{const b=BR[bi],vals=Array.from({length:b.tables},(_,i)=>{const x=a.filter(c=>c.b===bi&&c.tbl===i+1);return{i:i+1,s:sum(x,c=>c.sum),n:x.length}}),max=Math.max(...vals.map(v=>v.s),1);
+  return `<section class="c" style="margin-bottom:12px"><h2>${b[ST.l]}<small>${lei(sum(vals,v=>v.s))} ${t('per')}</small></h2><div class="tg">${vals.map(v=>`<button class="t" data-table="${bi}-${v.i}" style="background:color-mix(in srgb,var(--a2) ${Math.round(v.s/max*38)}%,var(--s))"><i class="st ${LIVE[bi][v.i-1].s}"></i><b>${t('tb')} ${v.i}</b><small>${t('chk')}: ${v.n}</small><strong>${lei(v.s)}</strong></button>`).join('')}</div></section>`}).join('')}
+function table(id,cols,rows,attr){const s=ST.sort[id]||{k:cols[1].k,d:-1};rows=[...rows].sort((x,y)=>{const a=x[s.k],b=y[s.k];return(a>b?1:a<b?-1:0)*s.d});
+ return `<div class="scroll"><table><thead><tr>${cols.map(c=>`<th ${s.k===c.k?`aria-sort="${s.d<0?'descending':'ascending'}"`:''}><button data-sort="${id}:${c.k}">${c.l}${s.k===c.k?(s.d<0?' ↓':' ↑'):''}</button></th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr ${attr?attr(r):''}>${cols.map(c=>`<td>${c.f?c.f(r):esc(r[c.k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function vDishes(){
+ let d=dishStat(sel()).map(x=>({...x,name:nm(x.i),c:MENU[x.i][3],likes:Math.round(x.n*(.1+((x.i*7)%10)/40))}));const tot=sum(d,x=>x.s);
+ if(ST.cat!=='all')d=d.filter(x=>x.c===+ST.cat);if(ST.q)d=d.filter(x=>x.name.toLowerCase().includes(ST.q.toLowerCase()));
+ return `<section class="c"><div class="tools"><input class="q" id="q" placeholder="${t('search')}" aria-label="${t('search')}" value="${esc(ST.q)}"><div class="seg"><button data-cat="all" aria-pressed="${ST.cat==='all'}">${t('allc')}</button>${CAT[ST.l].map((c,i)=>`<button data-cat="${i}" aria-pressed="${ST.cat===String(i)}">${c}</button>`).join('')}</div></div>
+ ${table('d',[{k:'name',l:t('name')},{k:'s',l:t('rev'),f:r=>lei(r.s)},{k:'n',l:t('sold'),f:r=>fmt(r.n)},{k:'share',l:t('share'),f:r=>(r.s/(tot||1)*100).toFixed(1).replace('.',',')+'%'},{k:'likes',l:t('likes'),f:r=>fmt(r.likes)}],d.map(x=>({...x,share:x.s})).slice(0,200))}</section>`}
+function vStaff(){
+ const a=sel(),m=new Map();a.forEach(c=>{const o=m.get(c.w)||{name:c.w,b:c.b,s:0,n:0,tip:0,qs:0,dur:0,r:0,rn:0};o.s+=c.sum;o.n++;o.tip+=c.tip;if(c.qr)o.qs+=c.sum;o.dur+=c.dur;if(c.rate){o.r+=c.rate;o.rn++}m.set(c.w,o)});
+ const l=[...m.values()].map(o=>({...o,avg:o.s/o.n,tp:o.tip/(o.qs||1)*100,rt:o.rn?o.r/o.rn:0,t:o.dur/o.n}));
+ return `<section class="c">${table('w',[{k:'name',l:t('wn')},{k:'s',l:t('rev'),f:r=>lei(r.s)},{k:'n',l:t('checks'),f:r=>fmt(r.n)},{k:'avg',l:t('avg'),f:r=>lei(r.avg)},{k:'tip',l:t('tips'),f:r=>lei(r.tip)},{k:'tp',l:t('tipp'),f:r=>r.tp.toFixed(1).replace('.',',')+'%'},{k:'rt',l:t('rate'),f:r=>r.rt?r.rt.toFixed(2).replace('.',','):'-'}],l,r=>`class="cl" data-waiter="${esc(r.name)}"`)}</section>`}
+let GC=null;
+function guests(){if(GC&&GC.key===ST.b)return GC.v;const m=new Map();C.forEach(c=>{if(ST.b!=='all'&&String(c.b)!==ST.b)return;const o=m.get(c.g)||{id:c.g,mask:'••'+GID[c.g],v:0,s:0,last:99,it:new Map()};o.v++;o.s+=c.sum;o.last=Math.min(o.last,c.d);c.items.forEach(i=>o.it.set(i,(o.it.get(i)||0)+1));m.set(c.g,o)});
+ const l=[...m.values()],th=[...l].sort((a,b)=>b.s-a.s)[Math.floor(l.length*.05)]?.s||1e9;
+ l.forEach(g=>{g.seg=g.last>21&&g.v>=3?'lost':g.s>=th?'vip':g.v>=6?'reg':g.v===1?'nw':'act';g.fav=[...g.it.entries()].sort((a,b)=>b[1]-a[1])[0][0]});GC={key:ST.b,v:l};return l}
+const SEGC={vip:'a',reg:'good',nw:'',act:'',lost:'bad'};
+function vGuests(){
+ const g=guests(),cn=['vip','reg','act','nw','lost'].map(s=>({s,n:g.filter(x=>x.seg===s).length,v:sum(g.filter(x=>x.seg===s),x=>x.s)}));
+ let l=ST.gs?g.filter(x=>x.seg===ST.gs):g;
+ return `<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${cn.map(c=>`<button class="k" style="text-align:left${ST.gs===c.s?';border-color:var(--a)':''}" data-gs="${c.s}"><small>${t(c.s)}</small><b>${fmt(c.n)}</b><span class="d" style="color:var(--muted)">${lei(c.v)}</span></button>`).join('')}</div>
+ <section class="c" style="margin-top:12px">${table('g',[{k:'mask',l:t('gu')},{k:'s',l:t('spent'),f:r=>lei(r.s)},{k:'v',l:t('visits'),f:r=>r.v},{k:'last',l:t('last'),f:r=>r.last===0?t('todayS'):r.last+' '+t('dago')},{k:'favN',l:t('fav'),f:r=>esc(r.favN)},{k:'seg',l:t('seg'),f:r=>`<span class="tag ${SEGC[r.seg]}">${t(r.seg)}</span>`}],l.map(x=>({...x,favN:nm(x.fav)})).sort((a,b)=>b.s-a.s).slice(0,120),r=>`class="cl" data-guest="${r.id}"`)}</section>`}
+function vReviews(){
+ const a=sel().filter(c=>c.rate),rv=a.filter(c=>c.txt!==''),dist=[5,4,3,2,1].map(n=>({n,c:a.filter(x=>x.rate===n).length}));
+ const list=rv.filter(c=>ST.rf==='all'||c.rate<=3).sort((x,y)=>x.d-y.d||y.h-x.h).slice(0,40);
+ return `<div class="g2"><section class="c"><div class="tools"><div class="seg"><button data-rf="all" aria-pressed="${ST.rf==='all'}">${t('allR')}</button><button data-rf="low" aria-pressed="${ST.rf==='low'}">${t('bad')}</button></div></div><div class="rev">${list.map(c=>{const pool=REV[ST.l][c.rate];return `<div class="rv"><div><span class="stars">${stars(c.rate)}</span><span>${dateS(c.dt)} · ${brName(c.b)} · ${t('tb')} ${c.tbl} · ${esc(c.w)}</span></div><p>${esc(pool[c.txt%pool.length])}</p></div>`}).join('')||`<p class="k" style="border:0">-</p>`}</div></section>
+ <section class="c"><h2>${t('avgR')}</h2><div class="k" style="border:0;padding:0 0 10px"><b>${avgRate(a).toFixed(2).replace('.',',')}</b><small>${fmt(a.length)} ${t('cnt').toLowerCase()}</small></div>${rowsBar(dist.map(d=>({l:'★ '+d.n,v:d.c,f:fmt(d.c)})))}<p class="demo" style="margin:14px 0 0">${t('ex')}</p></section></div>`}
+const payCalc=a=>{const c=sum(a.filter(x=>x.via==='card'),x=>x.sum),b=sum(a.filter(x=>x.via==='bank'),x=>x.sum),g=c+b,fc=c*.02,fb=b*.007,fm=g*.01;return{g,fc,fb,fm,net:g-fc-fb-fm,tip:sum(a,x=>x.tip)}};
+function vMoney(){
+ const a=sel(),p=payCalc(a),rows=[];const[lo,hi]=span();for(let d=lo;d<=Math.min(hi,lo+30);d++){const x=a.filter(c=>c.d===d);if(!x.length)continue;const q=payCalc(x);rows.push({d,dn:-d,date:dateS(ago(d)),g:q.g,fees:q.fc+q.fb+q.fm,net:q.net,tip:q.tip})}
+ return `<div class="kpis">${k(t('turnover'),lei(p.g),'','hero')}${k(t('fees'),lei(p.fc+p.fb+p.fm))}${k(t('payout'),lei(p.net))}${k(t('tipsO'),lei(p.tip))}</div>
+ <div class="g2"><section class="c"><h2>${t('po')}</h2>${table('m',[{k:'dn',l:t('date'),f:r=>r.date},{k:'g',l:t('gross'),f:r=>lei(r.g)},{k:'fees',l:t('fees'),f:r=>lei(r.fees)},{k:'net',l:t('net'),f:r=>lei(r.net)},{k:'tip',l:t('tipsT'),f:r=>lei(r.tip)}],rows)}</section>
+ <section class="c"><h2>${t('fees')}</h2><div class="leg"><div><span>${t('turnover')}</span><b>${lei(p.g)}</b></div><div><span>${t('feeC')}</span><b>−${lei(p.fc)}</b></div><div><span>${t('feeB')}</span><b>−${lei(p.fb)}</b></div><div><span>${t('feeM')}</span><b>−${lei(p.fm)}</b></div><div style="border-top:1px solid var(--line);padding-top:8px"><span><b>${t('payout')}</b></span><b>${lei(p.net)}</b></div></div></section></div>`}
+const V={over:vOver,tables:vTables,dishes:vDishes,staff:vStaff,guests:vGuests,reviews:vReviews,money:vMoney};
+const IC={over:'M4 13h6V4H4zM14 20h6v-9h-6zM14 8h6V4h-6zM4 20h6v-4H4z',tables:'M4 8h16M6 8v11M18 8v11M9 8V5h6v3',dishes:'M5 3v8a3 3 0 0 0 3 3v7M8 3v6M11 3v8M17 3c-2 2-3 5-3 9h3v9',staff:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-5 4-7 8-7s7 2 8 7',guests:'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.7-4 3-6 6-6s5.300 2 6 6M16 5a3 3 0 0 1 0 6M18 14c2 1 3 3 3 6',reviews:'M4 5h16v11H9l-5 4z',money:'M3 7h18v11H3zM12 15a2.500 2.500 0 1 0 0-5 2.500 2.500 0 0 0 0 5z'};
+function render(){
+ document.documentElement.lang=ST.l;
+ document.getElementById('sub').textContent=t('sub');document.getElementById('sfoot').textContent=t('demo');
+ document.getElementById('nav').innerHTML=Object.keys(V).map(v=>`<button data-v="${v}" ${ST.v===v?'aria-current="page"':''}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[v]}"/></svg>${t(v)}</button>`).join('');
+ const noPeriod=ST.v==='guests';
+ document.getElementById('main').innerHTML=`<div class="bar"><h1>${t(ST.v)}</h1>${noPeriod?'':`<div class="seg" role="group">${[['today','today'],['7','d7'],['30','d30'],['custom','dates']].map(([p,l])=>`<button data-p="${p}" aria-pressed="${ST.p===p}">${t(l)}</button>`).join('')}</div>${ST.p==='custom'?`<div class="dates"><label>${t('from')}<input type="date" id="from" min="${MIN}" max="${MAX}" value="${ST.from}"></label><label>${t('to')}<input type="date" id="to" min="${MIN}" max="${MAX}" value="${ST.to}"></label></div>`:''}`}${MANY?'':'<!--'}<div class="seg" role="group"><button data-b="all" aria-pressed="${ST.b==='all'}">${t('all')}</button>${BR.map((b,i)=>`<button data-b="${i}" aria-pressed="${ST.b===String(i)}">${b[ST.l]}</button>`).join('')}</div>${MANY?'':'-->'}<div class="seg" role="group"><button data-l="ru" aria-pressed="${ST.l==='ru'}">RU</button><button data-l="ro" aria-pressed="${ST.l==='ro'}">RO</button></div></div>${V[ST.v]()}`}
+function drawer(title,a,extra=''){
+ const rev=sum(a,c=>c.sum),top=dishStat(a).sort((x,y)=>y.n-x.n).slice(0,5),last=[...a].sort((x,y)=>x.d-y.d||y.h-x.h).slice(0,6);
+ document.getElementById('over').innerHTML=`<div class="scrim" data-close></div><aside class="dr" role="dialog" aria-modal="true" aria-label="${esc(title)}"><button class="x" data-close aria-label="${t('closeL')}">×</button><h2>${esc(title)}</h2>${extra}<div class="mini">${k(t('rev'),lei(rev))}${k(t('checks'),fmt(a.length))}${k(t('avg'),lei(rev/(a.length||1)))}${k(t('tips'),lei(sum(a,c=>c.tip)))}</div><section class="c"><h2>${t('top')}</h2>${rowsBar(top.map(x=>({l:nm(x.i),v:x.n,f:fmt(x.n)})))}</section><section class="c"><h2>${t('recent')}</h2><div class="leg">${last.map(c=>`<div><span>${dateS(c.dt)} ${c.h}:00 · ${c.people}×</span><b>${lei(c.sum)}</b></div>`).join('')}</div></section></aside>`;
+ document.querySelector('.dr .x').focus()}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-v],[data-p],[data-b],[data-l],[data-cat],[data-sort],[data-table],[data-waiter],[data-guest],[data-close],[data-gs],[data-rf]');if(!b)return;const a=b.dataset;
+ if('close' in a){document.getElementById('over').innerHTML='';return}
+ if(a.v){ST.v=a.v;render();scrollTo(0,0);return}
+ if(a.p){if(a.p==='custom'&&!ST.from){ST.from=iso(ago(13));ST.to=MAX}ST.p=a.p;return render()}
+ if(a.b){ST.b=a.b;return render()}
+ if(a.l){ST.l=a.l;try{localStorage.setItem('cab.l',a.l)}catch(x){}return render()}
+ if(a.cat){ST.cat=a.cat;return render()}
+ if(a.gs){ST.gs=ST.gs===a.gs?null:a.gs;return render()}
+ if(a.rf){ST.rf=a.rf==='low'?'low':'all';return render()}
+ if(a.sort){const[id,k]=a.sort.split(':'),s=ST.sort[id];ST.sort[id]={k,d:s&&s.k===k?-s.d:-1};return render()}
+ if(a.table){const[bi,n]=a.table.split('-').map(Number);return drawer(`${t('tb')} ${n}, ${brName(bi)}`,sel().filter(c=>c.b===bi&&c.tbl===n))}
+ if(a.waiter)return drawer(a.waiter,sel().filter(c=>c.w===a.waiter));
+ if(a.guest){const id=+a.guest,g=guests().find(x=>x.id===id);return drawer(`${t('gu')} ${g.mask}`,C.filter(c=>c.g===id&&(ST.b==='all'||String(c.b)===ST.b)),`<span class="tag ${SEGC[g.seg]}" style="justify-self:start">${t(g.seg)}</span>`)}
+});
+document.addEventListener('change',e=>{if(e.target.id==='from'||e.target.id==='to'){const v=e.target.value;if(v&&v>=MIN&&v<=MAX){ST[e.target.id]=v;GC=null;render()}else render()}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){ST.q=e.target.value;const p=e.target.selectionStart;render();const i=document.getElementById('q');i.focus();i.setSelectionRange(p,p)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('over').innerHTML=''});
+render();
+</script>
+
+</body>
+</html>
