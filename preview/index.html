@@ -165,6 +165,52 @@ textarea.field{height:88px;padding:10px 12px;resize:vertical;display:block}
 
 .bar .cats:last-child{padding-bottom:4px}
 
+/* ===== motion ===== */
+:root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.56,.64,1)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pop{0%{transform:scale(.85);opacity:.4}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+@keyframes heart{0%{transform:scale(1)}30%{transform:scale(1.35)}60%{transform:scale(.9)}100%{transform:scale(1)}}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.12) translate(-2%,-2%)}}
+@keyframes heroIn{from{transform:scale(1.12);filter:blur(6px);opacity:.3}to{transform:none;filter:none;opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translateY(-120%) scale(.96)}to{opacity:1;transform:none}}
+@keyframes ring{from{transform:scale(.4);opacity:.7}to{transform:scale(2.2);opacity:0}}
+.rv{opacity:0;transform:translateY(18px)}
+.rv.in{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0) * 55ms)}
+.scrim{animation:fadeIn .28s ease both;transition:opacity .28s ease}
+.sheet{animation:sheetUp .42s var(--ease) both;transition:transform .32s var(--ease);will-change:transform}
+#over.out .scrim{opacity:0}
+#over.out .sheet{transform:translateY(105%)!important}
+.grab{position:absolute;z-index:3;left:50%;top:8px;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:rgba(255,255,255,.55);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.hw{overflow:hidden}
+.hw .hero{animation:heroIn .7s var(--ease) both;transform-origin:50% 60%;will-change:transform}
+.sheet-in>*{animation:rise .5s var(--ease) both}
+.sheet-in>*:nth-child(1){animation-delay:.08s}.sheet-in>*:nth-child(2){animation-delay:.12s}.sheet-in>*:nth-child(3){animation-delay:.16s}.sheet-in>*:nth-child(4){animation-delay:.2s}.sheet-in>*:nth-child(5){animation-delay:.24s}.sheet-in>*:nth-child(n+6){animation-delay:.28s}
+.sheet.still .sheet-in>*,.sheet.still .hw .hero{animation:none}
+.o img{animation:kb 14s ease-in-out infinite alternate}
+.o:nth-child(2n) img{animation-duration:17s;animation-direction:alternate-reverse}
+.pic img{transition:transform .5s var(--ease)}
+.pic button:active img{transform:scale(.96)}
+.add,.btn,.dk,.opt,.seg button,.o,.quick button,.ib,.langs button,.stepper button,.lk,.cats button,.secs button,.stars button{transition:transform .18s var(--ease),background-color .25s,color .25s,border-color .25s,opacity .2s}
+.add:active,.btn:not([disabled]):active,.dk:active,.opt:active,.seg button:active,.quick button:active,.ib:active,.lk:active{transform:scale(.95)}
+.o:active{transform:scale(.98)}
+.stepper button:active{transform:scale(.8)}
+.pop{animation:pop .38s var(--spring) both}
+.lk.beat i{animation:heart .5s var(--spring)}
+.lk.beat{position:relative}
+.lk.beat i::after{content:"";position:absolute;width:30px;height:30px;border-radius:50%;border:2px solid var(--visina);animation:ring .55s ease-out forwards;pointer-events:none}
+.lk i{position:relative}
+.dk.bump{animation:bump .45s var(--spring)}
+.dock b{display:inline-block}
+.dk.bump b{animation:pop .45s var(--spring)}
+.toast{animation:toastIn .4s var(--spring) both;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.stars button[aria-pressed="true"] svg{animation:pop .35s var(--spring) both}
+.fly{position:fixed;z-index:40;pointer-events:none;border-radius:16px;object-fit:cover;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.secs button[aria-pressed="true"]{transition:background-color .3s,color .3s}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+
 </style>
 </head>
 <body>
@@ -369,22 +415,59 @@ function render(keep){
   document.getElementById('nav').innerHTML=navHTML();
   if(keep) window.scrollTo(0,y); else window.scrollTo(0,0);
   bindImg(document.getElementById('app'));
+  if(!keep) reveal();
 }
+/* ---------- motion ---------- */
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let rvIO=null;
+function reveal(){
+  if(RM||!('IntersectionObserver' in window))return;
+  if(rvIO)rvIO.disconnect();
+  let n=0;
+  rvIO=new IntersectionObserver(es=>{es.filter(e=>e.isIntersecting).forEach(e=>{e.target.style.setProperty('--i',Math.min(n++,8));e.target.classList.add('in');rvIO.unobserve(e.target)});n=0},{rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('#app .lead,#app .offers,#app .quick,#app .sec h2,#app .item,#app .page>h1,#app .page>.note,#app .card,#app .page>.btn,#app .empty').forEach(el=>{el.classList.add('rv');rvIO.observe(el)});
+}
+function fly(from){
+  if(RM)return;
+  const it=from.closest('.item'),img=(it&&it.querySelector('.pic img'))||(from.closest('.sheet')&&document.querySelector('.sheet .hero'));
+  const dst=document.querySelector('.dock .dk');if(!img||!dst)return;
+  const a=img.getBoundingClientRect(),b=dst.getBoundingClientRect();if(!a.width)return;
+  const sz=Math.min(a.width,110),c=document.createElement('img');c.src=img.src;c.className='fly';
+  Object.assign(c.style,{width:sz+'px',height:sz+'px',left:(a.left+a.width/2-sz/2)+'px',top:(a.top+a.height/2-sz/2)+'px'});
+  document.body.appendChild(c);
+  const dx=b.left+b.width*.3-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
+  const an=c.animate([{transform:'translate(0,0) scale(1)',opacity:1,borderRadius:'16px'},{transform:`translate(${dx*.5}px,${dy*.5-80}px) scale(.6)`,opacity:1,offset:.5},{transform:`translate(${dx}px,${dy}px) scale(.12)`,opacity:.6,borderRadius:'50%'}],{duration:650,easing:'cubic-bezier(.5,0,.3,1)'});
+  an.onfinish=()=>{c.remove();bumpDock()};
+}
+function bumpDock(){const d=document.querySelector('.dock .dk');if(!d)return;d.classList.remove('bump');void d.offsetWidth;d.classList.add('bump')}
+function popEl(sel){document.querySelectorAll(sel).forEach(e=>{e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop')})}
 function bindImg(){}
-function patch(id){document.querySelectorAll(`.item[data-id="${id}"]`).forEach(a=>{const d=D[id];const c=a.querySelector('.ctl');c.innerHTML=ctl(d);const ac=a.querySelector('.acts');ac.innerHTML=likeBtn(d)});document.getElementById('nav').innerHTML=navHTML();const f=document.querySelector('[data-fav]');if(f)f.innerHTML=I.heartH+t('fav')+': '+Object.keys(S.likes).length}
+function patch(id){document.querySelectorAll(`.item[data-id="${id}"]`).forEach(a=>{const d=D[id];const c=a.querySelector('.ctl');const was=c.innerHTML;c.innerHTML=ctl(d);if(!RM&&c.firstElementChild){if(was.slice(0,12)!==c.innerHTML.slice(0,12))c.firstElementChild.classList.add('pop');else{const sp=c.querySelector('.stepper span');sp&&sp.classList.add('pop')}}const ac=a.querySelector('.acts');ac.innerHTML=likeBtn(d)});document.getElementById('nav').innerHTML=navHTML();const f=document.querySelector('[data-fav]');if(f)f.innerHTML=I.heartH+t('fav')+': '+Object.keys(S.likes).length}
 function refresh(id){if(S.view==='menu')patch(id);else render(true);refreshDish()}
 let spy=null;function setSpy(){const c=document.getElementById('secs');if(!c)return;const sc=[...document.querySelectorAll('.sec')];const y=(document.querySelector('.bar')?.offsetHeight||0)+24;let cur=sc[0];sc.forEach(s=>{if(s.getBoundingClientRect().top<=y)cur=s});if(!cur)return;const id=cur.id.slice(1);if(spy===id)return;spy=id;c.querySelectorAll('button').forEach(b=>{const on=b.dataset.sec===id;b.setAttribute('aria-pressed',on);if(on)c.scrollTo({left:b.offsetLeft-12,behavior:'smooth'})})}
 window.addEventListener('scroll',setSpy,{passive:true});
 
 /* ---------- foi ---------- */
 let lastFocus=null;
+let closeT=null;
 function openSheet(html){
+  const ov=document.getElementById('over'),ex=ov.querySelector('.sheet');
+  clearTimeout(closeT);
+  if(ex&&!ov.classList.contains('out')){const y=ex.scrollTop;ex.classList.add('still');ex.innerHTML=`<span class="grab"></span><button class="close" data-close aria-label="${t('close')}">${I.x}</button>${html}`;ex.scrollTop=y;return}
+  ov.classList.remove('out');
   lastFocus=document.activeElement;
-  document.getElementById('over').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><button class="close" data-close aria-label="${t('close')}">${I.x}</button>${html}</div>`;
+  document.getElementById('over').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span><button class="close" data-close aria-label="${t('close')}">${I.x}</button>${html}</div>`;
   document.body.style.overflow='hidden';
   document.querySelector('.sheet .close').focus({preventScroll:true});
+  dragClose();
 }
-function closeSheet(){document.getElementById('over').innerHTML='';document.body.style.overflow='';S.openId=null;if(lastFocus&&lastFocus.isConnected)lastFocus.focus({preventScroll:true})}
+function dragClose(){
+  const sh=document.querySelector('.sheet');if(!sh)return;let y0=null,dy=0;
+  sh.addEventListener('touchstart',e=>{if(sh.scrollTop>2){y0=null;return}y0=e.touches[0].clientY;dy=0;sh.style.transition='none'},{passive:true});
+  sh.addEventListener('touchmove',e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy>0&&sh.scrollTop<=0){sh.style.transform=`translateY(${dy}px)`;if(e.cancelable)e.preventDefault()}},{passive:false});
+  sh.addEventListener('touchend',()=>{if(y0==null)return;sh.style.transition='';if(dy>120)closeSheet();else sh.style.transform='';y0=null});
+}
+function closeSheet(){const ov=document.getElementById('over');if(!ov.firstChild)return;if(RM){ov.innerHTML=''}else{ov.classList.add('out');const sh=ov.querySelector('.sheet');if(sh)sh.style.transform='';clearTimeout(closeT);closeT=setTimeout(()=>{if(ov.classList.contains('out')){ov.innerHTML='';ov.classList.remove('out')}},300)}document.body.style.overflow='';S.openId=null;if(lastFocus&&lastFocus.isConnected)lastFocus.focus({preventScroll:true})}
 function dishHTML(d){
   const u=imgUrl(d), cm=S.comments[d.id]||[];
   const al=[...new Set(d.al.map(a=>ALG[a][algI()]))];
@@ -399,8 +482,9 @@ function dishHTML(d){
   <form data-cform="${d.id}"><input class="field" name="n" maxlength="30" placeholder="${t('yourName')}" aria-label="${t('yourName')}"><textarea class="field" name="x" maxlength="400" required placeholder="${t('yourC')}" aria-label="${t('yourC')}"></textarea><button class="btn" type="submit">${t('send')}</button></form></div>`;
 }
 function openDish(id,toC){S.openId=id;openSheet(dishHTML(D[id]));bindHero();if(toC){const f=document.querySelector('.sheet form');f&&f.scrollIntoView({block:'center'})}}
-function refreshDish(){if(S.openId==null)return;const sh=document.querySelector('.sheet');const y=sh.scrollTop;const c=sh.querySelector('.close').outerHTML;sh.innerHTML=c+dishHTML(D[S.openId]);sh.scrollTop=y;bindHero()}
-function bindHero(){}
+function refreshDish(){if(S.openId==null)return;const sh=document.querySelector('.sheet');const y=sh.scrollTop;const c=sh.querySelector('.close').outerHTML;sh.classList.add('still');sh.innerHTML='<span class="grab"></span>'+c+dishHTML(D[S.openId]);sh.scrollTop=y;bindHero()}
+function bindHero(){if(RM)return;const sh=document.querySelector('.sheet'),h=sh&&sh.querySelector('.hero');if(!h)return;
+  sh.onscroll=()=>{const y=sh.scrollTop;if(y<500){h.style.transform=`translateY(${y*.35}px) scale(${1+y/1600})`;h.style.opacity=Math.max(.35,1-y/700)}};sh.onscroll()}
 function filterSheet(){openSheet(`<div class="sheet-in"><h2 class="t">${t('filters')}</h2><p class="note">${t('filterNote')}</p>${FREE.map(f=>`<button class="opt" data-free="${f[0]}" aria-pressed="${!!S.free[f[0]]}">${S.lang==='ru'?f[2]:S.lang==='en'?f[4]:f[1]}${S.free[f[0]]?I.check:''}</button>`).join('')}<button class="btn" data-close>${t('apply')}</button></div>`)}
 function callSheet(){openSheet(`<div class="sheet-in"><h2 class="t">${t('callH')}</h2><div style="margin-top:12px">${['c1','c3','c4'].map(k=>`<button class="opt" data-ask>${t(k)}</button>`).join('')}</div></div>`)}
 let tt;function toast(m){const e=document.getElementById('toast');e.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(tt);tt=setTimeout(()=>e.innerHTML='',2600)}
@@ -410,10 +494,10 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-close],[data-like],[data-open],[data-inc],[data-dec],[data-cat],[data-sec],[data-fav],[data-free],[data-allmenu],[data-dtip],[data-tippay],[data-tipskip],[data-pop],[data-askbill],[data-demoopen],[data-filters],[data-searchbtn],[data-go],[data-call],[data-ask],[data-lang],[data-clear],[data-mode],[data-ppl],[data-tip],[data-pay],[data-star],[data-review],[data-after],[data-resetbill]');
   if(!b)return; const a=b.dataset;
   if('close' in a) return closeSheet();
-  if('like' in a){const i=a.like;S.likes[i]?delete S.likes[i]:S.likes[i]=1;store.save();refresh(i);return}
+  if('like' in a){const i=a.like;const on=!S.likes[i];on?S.likes[i]=1:delete S.likes[i];store.save();refresh(i);if(on&&!RM)document.querySelectorAll(`[data-like="${i}"]`).forEach(e=>{e.classList.remove('beat');void e.offsetWidth;e.classList.add('beat')});return}
   if('open' in a){return openDish(+a.open,'cm' in a)}
-  if('inc' in a){const f=!S.list[a.inc];S.list[a.inc]=(S.list[a.inc]||0)+1;store.save();refresh(a.inc);if(f)toast(t('addd'));return}
-  if('dec' in a){S.list[a.dec]--;if(S.list[a.dec]<=0)delete S.list[a.dec];store.save();refresh(a.dec);return}
+  if('inc' in a){fly(b);const f=!S.list[a.inc];S.list[a.inc]=(S.list[a.inc]||0)+1;store.save();refresh(a.inc);if(f)toast(t('addd'));return}
+  if('dec' in a){S.list[a.dec]--;if(S.list[a.dec]<=0)delete S.list[a.dec];store.save();refresh(a.dec);bumpDock();return}
   if('allmenu' in a){S.popOnly=S.favOnly=false;spy=null;return render(false)}
   if('cat' in a){S.cat=a.cat;S.popOnly=S.favOnly=false;spy=null;render(false);const c=document.querySelector('.cats [aria-pressed=true]');if(c)c.scrollIntoView({inline:'center',block:'nearest'});return}
   if('sec' in a){const e=document.getElementById('s'+a.sec);if(e){e.style.scrollMarginTop=(document.querySelector('.bar').offsetHeight-1)+'px';e.scrollIntoView()}return}
